@@ -22,9 +22,13 @@ public class ASCIIDocGenerator implements Generator {
     }
 
     private String generateContent(List<Element> structure) {
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
 
         for (var e: structure) {
+            if (e instanceof Header currentHeader) {
+                result.append(generateHeader(currentHeader));
+            }
+
             if (e instanceof Paragraph currentParagraph) {
                 result.append(generateParagraph(currentParagraph));
             }
@@ -43,12 +47,34 @@ public class ASCIIDocGenerator implements Generator {
         return result.toString();
     }
 
+    private StringBuffer generateHeader(Header header) {
+        StringBuffer resultHeader = new StringBuffer();
+
+        resultHeader.append("=".repeat(Math.max(0, header.getImportance())));
+        resultHeader.append(" ");
+
+        List<Element> childElements = header.getChildElements();
+        for (var e: childElements) {
+            resultHeader.append(generateParagraph((Paragraph) e));
+        }
+
+        return resultHeader;
+    }
+
     private StringBuffer generateDocList(DocList docList) {
         StringBuffer resultDocList = new StringBuffer();
 
         List<Element> childElements = docList.getChildElements();
+        String typeList = docList.getTypeList();
+        System.out.println(typeList);
         for (var e: childElements) {
-            resultDocList.append(". ");
+
+            if (typeList == "bullet") {
+                resultDocList.append("* ");
+            } else {
+                resultDocList.append(". ");
+            }
+
             resultDocList.append(generateParagraph((Paragraph) e));
             resultDocList.append("\n");
         }
