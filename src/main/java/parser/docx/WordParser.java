@@ -10,12 +10,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class WordParser implements Parser {
     private final InputStream inputStream;
     private DocList docList;
-    private long pictureId;
+    private final long pictureId;
 
     public WordParser(InputStream inputStream) {
         this.inputStream = inputStream;
@@ -41,6 +42,8 @@ public class WordParser implements Parser {
                 docElements) {
             if (de instanceof XWPFParagraph currentElement) {
                 String currentTypeList = currentElement.getNumFmt();
+                System.out.println(currentTypeList);
+                System.out.println(currentElement.getNumID());
 
                 if (currentTypeList != null) {
                     if (previousIdList == null || !currentElement.getNumID().equals(previousIdList)) {
@@ -57,7 +60,13 @@ public class WordParser implements Parser {
                         result.add(docList);
                     }
 
-                    result.add(parseParagraph(currentElement));
+                    if (currentElement.getStyle() != null && Pattern.matches("\\d", currentElement.getStyle())) {
+                        Header header = new Header(Integer.parseInt(currentElement.getStyle()));
+                        header.addChildElement(parseParagraph(currentElement));
+                        result.add(header);
+                    } else {
+                        result.add(parseParagraph(currentElement));
+                    }
                 }
 
                 previousTypeList = currentTypeList;
@@ -67,6 +76,10 @@ public class WordParser implements Parser {
             if (de instanceof XWPFTable currentElement) {
                 result.add(parseTable(currentElement));
             }
+        }
+
+        if (previousTypeList != null && !previousTypeList.isEmpty()) {
+            result.add(docList);
         }
 
         return result;
@@ -103,7 +116,7 @@ public class WordParser implements Parser {
     }
 
     private Paragraph parseParagraph(XWPFParagraph xwpfParagraph) {
-        // System.out.println(xwpfParagraph.getStyle());
+        //System.out.println(xwpfParagraph.getStyle());
         List<XWPFRun> listRuns = xwpfParagraph.getRuns();
         Paragraph paragraph = new Paragraph();
 
