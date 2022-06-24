@@ -68,14 +68,17 @@ public class ASCIIDocGenerator implements Generator {
         String typeList = docList.getTypeList();
         System.out.println(typeList);
         for (var e: childElements) {
+            ListElement listElement = (ListElement) e;
+            int nestedLvl = listElement.getElementLvl() + 1;
 
             if (typeList == "bullet") {
-                resultDocList.append("* ");
+                resultDocList.append("*".repeat(Math.max(0, nestedLvl)));
             } else {
-                resultDocList.append(". ");
+                resultDocList.append(".".repeat(Math.max(0, nestedLvl)));
             }
+            resultDocList.append(" ");
 
-            resultDocList.append(generateParagraph((Paragraph) e));
+            resultDocList.append(generateParagraph(listElement.getLikeParagraph()));
             resultDocList.append("\n");
         }
 

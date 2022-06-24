@@ -54,7 +54,12 @@ public class WordParser implements Parser {
                         docList = new DocList(currentTypeList);
                     }
 
-                    docList.addChildElement(parseParagraph(currentElement));
+                    docList.addChildElement(
+                            new ListElement(
+                                    parseParagraph(currentElement),
+                                    currentElement.getNumIlvl().intValue()
+                            )
+                    );
                 } else {
                     if (previousTypeList != null && !previousTypeList.isEmpty()) {
                         result.add(docList);
@@ -116,7 +121,7 @@ public class WordParser implements Parser {
     }
 
     private Paragraph parseParagraph(XWPFParagraph xwpfParagraph) {
-        //System.out.println(xwpfParagraph.getStyle());
+        System.out.println(xwpfParagraph.getNumIlvl());
         List<XWPFRun> listRuns = xwpfParagraph.getRuns();
         Paragraph paragraph = new Paragraph();
 
