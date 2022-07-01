@@ -13,7 +13,7 @@ public class Program {
         try (InputStream inputStream =
                 Files.newInputStream(Paths.get(System.getProperty("user.dir").concat("\\Backend.docx")))) {
             List<Element> parsedDocument = new WordParser(inputStream).parse();
-            new ASCIIDocGenerator("newtest").create(parsedDocument);
+            new ASCIIDocGenerator("Backend").create(parsedDocument);
         } catch (IOException exception) {
             exception.printStackTrace();
         } catch (Exception e) {
