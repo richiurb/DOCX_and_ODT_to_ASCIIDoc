@@ -11,16 +11,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class WordParser implements Parser {
     private final InputStream inputStream;
     private DocList docList;
-    private final long pictureId;
 
     public WordParser(InputStream inputStream) {
         this.inputStream = inputStream;
-        this.pictureId = 1;
     }
 
     @Override
@@ -42,8 +39,7 @@ public class WordParser implements Parser {
                 docElements) {
             if (de instanceof XWPFParagraph currentElement) {
                 String currentTypeList = currentElement.getNumFmt();
-                System.out.println(currentTypeList);
-                System.out.println(currentElement.getNumID());
+                String currentStyle = currentElement.getStyle();
 
                 if (currentTypeList != null) {
                     if (previousIdList == null || !currentElement.getNumID().equals(previousIdList)) {
@@ -65,8 +61,19 @@ public class WordParser implements Parser {
                         result.add(docList);
                     }
 
-                    if (currentElement.getStyle() != null && Pattern.matches("\\d", currentElement.getStyle())) {
-                        Header header = new Header(Integer.parseInt(currentElement.getStyle()));
+                    if (currentElement.getStyle() != null &&
+                            (Pattern.matches("\\d", currentElement.getStyle()) ||
+                                    Pattern.matches("a\\d", currentElement.getStyle()))) {
+                        int importance;
+
+                        if (currentStyle.charAt(0) == 'a') {
+                            importance = Integer.parseInt(String.valueOf(currentStyle.charAt(1))) - 2;
+                        } else {
+                            importance = Integer.parseInt(currentStyle);
+                        }
+
+                        Header header = new Header(importance);
+
                         header.addChildElement(parseParagraph(currentElement));
                         result.add(header);
                     } else {
@@ -121,7 +128,6 @@ public class WordParser implements Parser {
     }
 
     private Paragraph parseParagraph(XWPFParagraph xwpfParagraph) {
-        System.out.println(xwpfParagraph.getNumIlvl());
         List<XWPFRun> listRuns = xwpfParagraph.getRuns();
         Paragraph paragraph = new Paragraph();
 
@@ -148,7 +154,6 @@ public class WordParser implements Parser {
         boolean italic = xwpfRun.isItalic();
         boolean strike = xwpfRun.isStrikeThrough();
 
-        System.out.println(content + " " + color + " " + bold + " " + italic + " " + strike);
         return new Text(content, color, bold, italic, strike);
     }
 

@@ -7,7 +7,12 @@ public class Image extends Element {
     public Image(byte[] data, String imageText) {
         super();
         this.data = data;
-        this.imageText = imageText;
+
+        if (imageText == null || imageText.isEmpty()) {
+            this.imageText = "Рисунок";
+        } else {
+            this.imageText = imageText;
+        }
     }
 
     public String getImageText() {

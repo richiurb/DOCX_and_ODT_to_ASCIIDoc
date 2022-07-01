@@ -66,7 +66,6 @@ public class ASCIIDocGenerator implements Generator {
 
         List<Element> childElements = docList.getChildElements();
         String typeList = docList.getTypeList();
-        System.out.println(typeList);
         for (var e: childElements) {
             ListElement listElement = (ListElement) e;
             int nestedLvl = listElement.getElementLvl() + 1;
@@ -99,8 +98,9 @@ public class ASCIIDocGenerator implements Generator {
 
                 for (var paragraph: cell.getChildElements()) {
                     resultTable.append(generateParagraph((Paragraph) paragraph));
+                    resultTable.append("\n\n");
                 }
-
+                resultTable.delete(resultTable.length() - 2, resultTable.length() - 1);
                 if (count > 0) resultTable.append("\n");
             }
 
